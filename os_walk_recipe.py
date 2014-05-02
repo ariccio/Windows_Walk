@@ -54,13 +54,6 @@ def windows_walk(folder, in_local_ctypes=ctypes, in_local_ctypes_windll_kernel32
             #logging.debug("\t%s is a local drive" % folder)
             # local drive
     #folder = '\\\\?\\%s' % folder
-##    local_ctypes = ctypes
-##    local_ctypes_windll_kernel32 = local_ctypes.windll.kernel32
-##    local_print = print
-##    local_WindowsError = WindowsError
-##    local_windows_walk = windows_walk
-##    local_byref = byref
-##    local_FILE_ATTRIBUTE_DIRECTORY = FILE_ATTRIBUTE_DIRECTORY
     local_windows_walk=windows_walk
     dirs = []
     files = []
@@ -71,9 +64,10 @@ def windows_walk(folder, in_local_ctypes=ctypes, in_local_ctypes_windll_kernel32
     lpFileName = "%s\\%s" % (folder, '*')
     h = local_ctypes_windll_kernel32.FindFirstFileW(lpFileName, local_byref(data))#type 'int'
     #h = local_ctypes.windll.kernel32.FindFirstFileW(lpFileName, byref(data))#type 'int'
-    #logging.debug("type(h): %s" % str(type(h)))
-    #logging.debug("h: %s" % str(h))
-    #logging.debug("lpFileName: %s" % str(lpFileName))
+    if __debug__:
+        logging.debug("type(h): %s" % str(type(h)))
+        logging.debug("h: %s" % str(h))
+        logging.debug("lpFileName: %s" % str(lpFileName))
     gle = local_ctypes_windll_kernel32.GetLastError()
     #gle = local_ctypes.windll.kernel32.GetLastError()
     if h < 0:
@@ -89,26 +83,31 @@ def windows_walk(folder, in_local_ctypes=ctypes, in_local_ctypes_windll_kernel32
     
     
     if data.dwFileAttributes & local_FILE_ATTRIBUTE_DIRECTORY:
-        #logging.debug("\n\t\tdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY : %s - (data.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY): %s, %s" % (str(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), str(data.dwFileAttributes), str(FILE_ATTRIBUTE_DIRECTORY)))
+        if __debug__:
+            logging.debug("\n\t\tdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY : %s - (data.dwFileAttributes, FILE_ATTRIBUTE_DIRECTORY): %s, %s" % (str(data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY), str(data.dwFileAttributes), str(FILE_ATTRIBUTE_DIRECTORY)))
         #print("\tdata.cFileName: '", data.cFileName, "'")
         #print()
         #pass
         if data.cFileName not in ('.', '..'):
-            #logging.debug("\t\t%s not in '.' or '..'" % str(data.cFileName))
+            if __debug__:
+                logging.debug("\t\t%s not in '.' or '..'" % str(data.cFileName))
             dirs.append(data.cFileName[:])
         else:
             local_print(end='')
             #pass
-            #logging.debug("\t\t\tfile in '.' or '..'! fileName is: %s" % str(data.cFileName))
+            if __debug__:
+                logging.debug("\t\t\tfile in '.' or '..'! fileName is: %s" % str(data.cFileName))
     else:
         files.append(data.cFileName[:])
-        #logging.debug("\t\t\t\tAppended : ", files[-1])
+        if __debug__:
+            logging.debug("\t\t\t\tAppended : ", files[-1])
 
     try:
         while local_ctypes_windll_kernel32.FindNextFileW(h, local_byref(data)):
             if data.dwFileAttributes & local_FILE_ATTRIBUTE_DIRECTORY:
                 if data.cFileName not in ('.', '..'):
-                    #logging.debug("\t'%s' not in '.' or '..' - it must be a directory - descending directory... " %  str(data.cFileName))
+                    if __debug__:
+                        logging.debug("\t'%s' not in '.' or '..' - it must be a directory - descending directory... " %  str(data.cFileName))
                     dirs.append(data.cFileName[:])
             else:
                 files.append(data.cFileName[:])
@@ -120,7 +119,8 @@ def windows_walk(folder, in_local_ctypes=ctypes, in_local_ctypes_windll_kernel32
         sys.exit('Failed to find next file %s\\*, handle %d, buff addr: 0x%x' % (folder, h, addressof(data)))
         
     local_ctypes_windll_kernel32.FindClose(h)
-    #logging.debug("\tyielding folder %s:" % (str(folder)))
+    if __debug__:
+        logging.debug("\tyielding folder %s:" % (str(folder)))
     #for a_dir in dirs:
         #logging.debug("\t\tdir a_dir %s:" % (str(a_dir)))
         #for a_file in files:
